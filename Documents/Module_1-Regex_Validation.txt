@@ -1,0 +1,69 @@
+MODULE 1: Regex Validation Function (V2)
+
+1. Module Overview & Objectives:
+The goal of this function is to interactively prompt the user for input using
+the Read-Host cmdlet inside the function, and to verify using Regular
+Expressions whether the input meets enterprise naming conventions so that it can
+be safely used as the name of an Active Directory account serving as a Shared
+Mailbox.
+
+Before prompting for a name, the function will present the naming requirements
+to the user and inform them that they can exit the program entirely by typing
+'cancel' or 'c' for short (both case-insensitive).
+
+2. Input Parameters:
+None. The function does not accept any incoming parameters. It encapsulates the
+data gathering process internally using Read-Host to enforce a clean TUI
+workflow.
+
+3. .::CRITICAL::. Validation Logic & Business Rules (Enterprise Naming
+Conventions - Regex Rules):
+What the Regex and function logic must verify:
+
+1. Character Restrictions: The passed string can consist only of:
+* Latin letters from a-z (lowercase)
+* Latin letters from A-Z (uppercase)
+* Digits from 0-9
+* The only allowed internal special characters are hyphens (-) and underscores
+  (_).
+
+2. Length Restrictions:
+* The department name entered by the user MUST NOT be shorter than 2 characters
+  (e.g., 'it', 'hr' are allowed).
+* The full shared mailbox name (prefix + department name) must not be longer
+  than 20 characters due to sAMAccountName limits. This means the department
+  name entered by the user has a maximum length of 17 characters.
+
+3. Structural Integrity: The string CANNOT:
+* Contain spaces or any special characters other than hyphens and underscores.
+* Start or end with the allowed special characters. The department name must
+  start and end with a digit or a letter (e.g., 'finances', 'marketing1', 'hr').
+
+4. Output / Return Value:
+If the user enters 'cancel' or 'c', the function terminates the loop and should
+signal the main menu or exit sequence (e.g., returning a specific token or
+throwing a controlled termination control, to be defined in core script
+mapping).
+
+If the input meets all structural requirements, the given name (e.g.,
+'Finances') will be converted to lowercase, and the prefix 'sm_' will be
+prepended. For example, 'Finances' becomes 'sm_finances'.
+
+The function returns the final validated and formatted string: 'sm_finances'
+
+5. Error Handling & Edge Cases:
+The function must run an internal loop to continuously prompt the user until a
+valid name is provided or the operation is canceled.
+
+* When the user provides no input (just presses Enter): Inform them via a
+  warning message that the input is empty and no name was provided, then re-
+  prompt.
+* When the user provides an invalid name (fails regex or length rules): Inform
+  them via a warning message that the name is invalid or does not meet
+  enterprise naming conventions, then re-prompt.
+
+6. What this FUNCTION IS NOT:
+This function is not designed to search the Active Directory database to verify
+whether the compiled account name already exists. It focuses solely on gathering
+input via Read-Host, validating it against Regex and length constraints, and
+returning a compliant, structured name string.
