@@ -10,6 +10,7 @@ function Test-DepartmentName {
     $MaxLength = 17
 
     while ($true) {
+        Write-Host ""
         Write-Host "==================================================" -ForegroundColor Cyan
         Write-Host "ENTERPRISE NAMING CONVENTIONS FOR SHARED MAILBOX" -ForegroundColor Cyan
         Write-Host "- Allowed characters: Letters (a-z, A-Z), Digits (0-9)" -ForegroundColor White
@@ -20,18 +21,16 @@ function Test-DepartmentName {
         Write-Host "==================================================" -ForegroundColor Cyan
 
         $RawInput = Read-Host "Enter Department Name"
-        
-        if ($null -eq $RawInput) {
+        Write-Host ""
+
+        # Jeden warunek, który załatwia absolutnie wszystko: null, puste znaki i same spacje
+        if ([string]::IsNullOrWhiteSpace($RawInput)) {
             Write-Warning "Input cannot be empty. Please try again."
             continue
         }
 
+        # Skoro przeszliśmy warunek, możemy bezpiecznie trimować i procesować dalej
         $CleanInput = $RawInput.Trim()
-
-        if ([string]::IsNullOrEmpty($CleanInput)) {
-            Write-Warning "Input cannot be empty. Please try again."
-            continue
-        }
 
         # Check for user cancellation token
         if ($CleanInput -ieq 'c' -or $CleanInput -ieq 'cancel') {
@@ -53,6 +52,7 @@ function Test-DepartmentName {
 
         # Formulate the final compliant shared mailbox string
         $FormattedName = "sm_" + $CleanInput.ToLower()
+        # FOR TEST PURPOSES: Write-Host "The SM Name is: $FormattedName"
         return $FormattedName
     }
 }
