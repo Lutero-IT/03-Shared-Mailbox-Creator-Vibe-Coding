@@ -1,0 +1,90 @@
+### Overview
+This module defines the specification for creating an Active Directory (AD)
+User Account for a Shared Mailbox and its corresponding Security Group
+(Access Group).
+
+### Flow of the Program
+The main orchestrator loop operates as follows:
+Main Loop (while)
+├── Test-DepartmentName (Validates and returns $FormattedName)
+├── Create-SharedMailbox (Creates account and initial access group)
+└── Manage-AccessGroup (Manages detailed group memberships)
+
+### 1. Function Objectives: Create-SharedMailbox
+- Accepts the validated department name from 'Test-DepartmentName'.
+- Checks if an AD User Account with this name already exists.
+- If it exists, the function exits/returns a failure state so the Main Loop
+  can trigger 'continue' back to 'Test-DepartmentName'.
+- If it does not exist, it creates the AD User Account and the associated
+  Security Group.
+- Searches for an existing department group (e.g., 'Finances') and prompts
+  the user to nest it inside the newly created access group.
+
+### 2. Input Parameters
+- **Name**: Accepts the `$FormattedName` variable outputted by the
+  'Test-DepartmentName' function, to be tested for presence in AD.
+
+### 3. Validation Logic & Business Rules
+The function stores the 'Name' parameter into a local `$name` variable.
+
+```Variables for Account and Group Parameters```
+$titleName = (Get-Culture).TextInfo.ToTitleCase($name)
+$samName = "sm_$name"
+$fullName = "Shared Mailbox"
+$SMGroupName = "sg_sm_${name}_access"
+$domainRoot = (Get-ADDomain -Current LoggedOnUser).DNSRoot
+$OUPath = "OU=Shared Mailboxes,OU=Resources,OU=Camp,DC=oldcamp,DC=gothic,DC=inc"
+
+
+$AccountParams = @{
+    Name = "$titleName $fullName"
+    SamAccountName = $samName
+    UserPrincipalName = "$samName@$domainRoot"
+    DisplayName = "$fullName - $titleName"
+    AccountPassword = $password
+    Enabled = $false
+    ChangePasswordAtLogon = $false
+    Path = $OUPath
+    Description = "Shared Mailbox for '$titleName' department, " +
+                  "created by Shared Mailbox Creator."
+}
+
+$GroupParams = @{
+    Name = $SMGroupName
+    DisplayName = "Security Group - SM - $titleName - Access"
+    GroupScope = "Global"
+    GroupCategory = "Security"
+    Path = $OUPath
+    Description = "Access group for the $titleName Shared Mailbox. " +
+                  "Created via automation script."
+}
+
+#### Example Value Mapping (If $name is 'finances'):
+- $titleName = Finances
+- $samName = "sm_finances"
+- $fullName = "Shared Mailbox"
+- $SMGroupName = "sg_sm_finances_access"
+
+### 4. Post-Creation Group Search
+- After successful creation of both objects, the function searches for an
+  existing AD group matching `$titleName` (e.g., "Finances").
+- **If found:** Prompt the user via CLI: "Do you want to add this group to
+  the newly created access group ($SMGroupName)?".
+- Whether the user confirms or declines, the function completes its execution
+  and hands off control to the next stage in the Main Loop
+  ('Manage-AccessGroup').
+- **If NOT found:** The function exits gracefully and proceeds to the Main
+  Loop's next sequence.
+
+### 5. Output / Return Value
+- This function is action-based and does not return data objects.
+- Its core task is to create the AD account and AD group.
+
+### 6. Error Handling & Rollback Strategy (Critical)
+- Wrap AD search and creation tasks inside try/catch or if/else 
+(depending whether you need to use -Identity or -Filter parameters)
+blocks to intercept terminating errors.
+- **Rollback mechanism:** If an error occurs midway (e.g., the account is
+  created successfully, but the group creation fails), the function must
+  automatically delete/clean up any partially created objects from this
+  session before terminating, leaving Active Directory clean.

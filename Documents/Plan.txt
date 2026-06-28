@@ -1,0 +1,13 @@
+PLAN:
+
+PSEUDO-CODE VERIFICATION:
+    Write a pseudo code describing the program algorithm (as a plain text) so that we can check
+    the logic before writing the actual function.
+
+CHAIN OF THOUGHT Technique:
+    Make use of "Chain-of-Thought" technique.
+    Divide problem / script into smaller parts (for example steps: Step 1, Step 2, ... )
+    and explain what will you do.
+
+TEST-DRIVEN DEVELOPMENT
+    After that, create a bunch of test that we will conduct after you deliver the script.

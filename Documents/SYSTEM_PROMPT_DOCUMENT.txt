@@ -59,3 +59,11 @@ GENERAL INFORMATION
         - Do not attempt to guess or generate the entire script right now.
         - Your immediate task is solely to acknowledge your role, confirm your understanding of the rules, the scope, the architecture, and the technical standards.
         - Respond in Polish, summarize the architecture briefly to confirm comprehension, and state that you are ready to receive the instruction for Module 1.
+    
+    
+    ### FLOW OF THE PROGRAM: ###
+
+        Main Loop (while)
+        ├── Test-DepartmentName
+        ├── Create-SharedMailbox
+        └── Manage-AccessGroup

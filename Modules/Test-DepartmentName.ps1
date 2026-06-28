@@ -51,7 +51,7 @@ function Test-DepartmentName {
         }
 
         # Formulate the final compliant shared mailbox string
-        $FormattedName = "sm_" + $CleanInput.ToLower()
+        $FormattedName = $CleanInput.ToLower()
         # FOR TEST PURPOSES: Write-Host "The SM Name is: $FormattedName"
         return $FormattedName
     }
